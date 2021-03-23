@@ -1,3 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+
+/* Resets */
+
 *,
 *::before,
 *::after {
@@ -10,7 +14,171 @@ body {
   padding: 0;
 }
 
+/* General styles */
+
+:root {
+  --cell-bg-color: #eee;
+  --theme-color: #6089ff;
+  --text-color-1: rgba(0, 0, 0, 0.6);
+}
+
 body {
   min-height: 100vh;
+  font-family: "Montserrat", sans-serif;
   background: linear-gradient(rgb(255, 239, 186), rgb(255, 255, 255));
+}
+
+header {
+  padding: 1rem 0 0;
+}
+
+h1 {
+  margin: 0 0 1rem;
+  text-align: center;
+  color: var(--text-color-1);
+}
+
+.container {
+  margin: 0 auto;
+  width: 400px;
+}
+
+/* Players */
+
+.players {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--theme-color);
+  border-radius: 0.5rem;
+}
+
+.player {
+}
+
+.player_name {
+  display: inline-block;
+  height: 3rem;
+  font-size: 2rem;
+  color: var(--text-color-1);
+}
+
+.player_input {
+  display: inline-block;
+  height: 3rem;
+  width: 10ch;
+  font-family: inherit;
+  font-size: 2rem;
+  padding: 0.25rem;
+  background: transparent;
+  border: 1px solid var(--text-color-1);
+  border-radius: 0.5rem;
+}
+
+.hide {
+  display: none;
+}
+
+/* Game board */
+
+.game_board {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding-bottom: 100%;
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border: 20px solid var(--theme-color);
+  border-radius: 0.5rem;
+}
+
+.cell {
+  margin: 2px;
+  border: 5px solid var(--theme-color);
+  border-radius: 0.5rem;
+  background: var(--cell-bg-color);
+}
+
+.x,
+.o {
+  position: relative;
+  animation: appear 1s ease-in-out;
+}
+
+.x::before,
+.x::after,
+.o::before,
+.o::after {
+  content: "";
+  position: absolute;
+  display: block;
+  background: var(--theme-color);
+}
+
+.x::before,
+.x::after {
+  top: 50%;
+  left: 50%;
+  width: 95%;
+  height: 10%;
+}
+
+.x::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.x::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.o::before {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+
+.o::before {
+  --size: 80%;
+  width: var(--size);
+  height: var(--size);
+  background: radial-gradient(
+    circle at center,
+    transparent 0,
+    transparent 50%,
+    var(--theme-color) 0,
+    var(--theme-color) 100%
+  );
+}
+
+.winner {
+  background: #11ff15;
+}
+
+/* Animation */
+@keyframes appear {
+  from {
+    box-shadow: inset 0 0 0.25rem 1rem goldenrod;
+  }
+  to {
+    box-shadow: none;
+  }
+}
+
+/* Restart button */
+.restart_button {
+  padding: 0.3rem 0.6rem;
+  font-family: inherit;
+  font-size: 2rem;
+  color: var(--theme-color);
+  border: 0.25rem solid var(--theme-color);
+  border-radius: 0.5rem;
 }
