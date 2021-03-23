@@ -17,9 +17,12 @@ body {
 /* General styles */
 
 :root {
-  --cell-bg-color: #eee;
+  --grey-bg-color: #eee;
   --theme-color: #6089ff;
   --text-color-1: rgba(0, 0, 0, 0.6);
+  --text-color-2: #686868;
+  --tie-color: #686868;
+  --winner-color: #11ff15;
 }
 
 body {
@@ -35,6 +38,7 @@ header {
 h1 {
   margin: 0 0 1rem;
   text-align: center;
+  font-size: 4rem;
   color: var(--text-color-1);
 }
 
@@ -48,17 +52,48 @@ h1 {
 .players {
   margin-bottom: 1rem;
   padding: 1rem;
-  border: 1px solid var(--theme-color);
+  border: 0.25rem solid var(--theme-color);
   border-radius: 0.5rem;
+  background: var(--grey-bg-color);
 }
 
 .player {
+  font-size: 2rem;
+}
+
+.player:first-of-type {
+  margin-bottom: 0.5rem;
+}
+
+.tie,
+.winner {
+  position: relative;
+}
+
+.tie::before,
+.winner::before {
+  position: absolute;
+  right: 10px;
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+}
+
+.tie::before {
+  content: "Tie";
+  color: white;
+  background: var(--tie-color);
+}
+
+.winner::before {
+  content: "Winner";
+  color: var(--text-color-2);
+  background: var(--winner-color);
 }
 
 .player_name {
   display: inline-block;
   height: 3rem;
-  font-size: 2rem;
   color: var(--text-color-1);
 }
 
@@ -67,7 +102,7 @@ h1 {
   height: 3rem;
   width: 10ch;
   font-family: inherit;
-  font-size: 2rem;
+  font-size: inherit;
   padding: 0.25rem;
   background: transparent;
   border: 1px solid var(--text-color-1);
@@ -104,7 +139,7 @@ h1 {
   margin: 2px;
   border: 5px solid var(--theme-color);
   border-radius: 0.5rem;
-  background: var(--cell-bg-color);
+  background: var(--grey-bg-color);
 }
 
 .x,
@@ -159,8 +194,8 @@ h1 {
   );
 }
 
-.winner {
-  background: #11ff15;
+.cell_winner {
+  background: var(--winner-color);
 }
 
 /* Animation */
