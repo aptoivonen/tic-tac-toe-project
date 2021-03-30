@@ -1,6 +1,4 @@
 ((doc) => {
-  const { log } = console;
-
   // Game logic
   const game = (() => {
     const gameBoard = (() => {
@@ -75,7 +73,6 @@
               Math.floor(columns * Math.random()),
             ];
             if (gameBoard.setCell(randomRow, randomColumn, aiPlayer.marker)) {
-              log("Ai made move", [randomRow, randomColumn]);
               moveMade = true;
             }
           }
@@ -211,6 +208,7 @@
 
       const startNewGame = () => {
         gameBoard.resetBoard();
+        result = null;
       };
 
       return {
@@ -237,24 +235,32 @@
     };
   })();
 
-  // test game
-  window.game = game;
-
   // Cache dom
+  const grid = doc.getElementById("grid");
   const cells = doc.querySelectorAll(".cell");
+  const player1Section = doc.getElementById("player1-section");
   const player1Name = doc.getElementById("player1-name");
   const player1Input = doc.getElementById("player1-input");
+  const player2Section = doc.getElementById("player2-section");
+  const restartButton = doc.getElementById("restart-button");
 
   // Bind events
-  cells.forEach((cell) => cell.addEventListener("click", cellToggle));
+  cells.forEach((cell) => cell.addEventListener("click", makeMove));
   player1Name.addEventListener("dblclick", nameToggle);
   player1Input.addEventListener("change", inputName);
   player1Input.addEventListener("keyup", inputName);
   player1Input.addEventListener("blur", inputName);
+  restartButton.addEventListener("click", restart);
+
+  // Cache game result
+  let gameResult;
 
   // Listeners
-  function cellToggle() {
-    this.classList.toggle("x");
+  function makeMove(e) {
+    const row = parseInt(this.dataset.row, 10);
+    const column = parseInt(this.dataset.column, 10);
+    gameResult = game.makeMove(row, column);
+    render();
   }
 
   function nameToggle() {
@@ -268,10 +274,11 @@
     if (e.type === "keyup" && e.key !== "Enter") return;
     const value = this.value;
     if (value) {
-      player1Name.textContent = value;
+      game.setPlayerName(value);
     }
     hide(this);
     show(player1Name);
+    render();
   }
 
   function show(element) {
@@ -280,5 +287,52 @@
 
   function hide(element) {
     element.classList.add("hide");
+  }
+
+  function restart() {
+    game.restart();
+    gameResult = undefined;
+    render();
+  }
+
+  function render() {
+    // Player 1 name
+    player1Name.textContent = game.getPlayerName();
+
+    // Winner and Tie
+    if (!gameResult) {
+      player1Section.classList.remove("winner", "tie");
+      player2Section.classList.remove("winner", "tie");
+    } else if (gameResult.result === "tie") {
+      player1Section.classList.add("tie");
+      player2Section.classList.add("tie");
+    } else if (gameResult.result === "winner") {
+      gameResult.winningPlayer === 1
+        ? player1Section.classList.add("winner")
+        : player2Section.classList.add("winner");
+    }
+
+    // Game situation
+    if (!gameResult) {
+      cells.forEach((cell) => cell.classList.remove("x", "o"));
+    } else {
+      const { board } = gameResult;
+      const rows = board.length;
+      const columns = board[0].length;
+      for (row = 0; row < rows; row++) {
+        for (column = 0; column < columns; column++) {
+          const token = gameResult.board[row][column];
+          if (token) {
+            findCell(row, column).classList.add(token);
+          }
+        }
+      }
+    }
+
+    function findCell(row, column) {
+      return grid.querySelector(
+        `.cell[data-row="${row}"][data-column="${column}"]`
+      );
+    }
   }
 })(document);
