@@ -97,6 +97,10 @@ h1 {
   color: var(--text-color-1);
 }
 
+.ai_name {
+  user-select: none;
+}
+
 .player_input {
   display: inline-block;
   height: 3rem;
