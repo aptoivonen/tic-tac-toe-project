@@ -35,47 +35,210 @@
       };
     })();
     class Player {
-      constructor(id, name) {
+      constructor(id, name, marker) {
         this.id = id;
         this.name = name;
+        this.marker = marker;
       }
     }
 
-    function playerFactory(type) {
+    const playerFactory = (type) => {
+      const MARKERS = Object.freeze({ humanPlayer: "x", aiPlayer: "o" });
+
       if (type === "humanPlayer") {
-        return new Player("Player1", 1);
+        return new Player(1, "Player1", MARKERS.humanPlayer);
       }
 
       if (type === "aiPlayer") {
-        return new Player("AI", 2);
+        return new Player(2, "AI", MARKERS.aiPlayer);
       }
 
       throw new Error("player type wrong:" + type);
-    }
+    };
 
-    const ai = (() => {})();
+    const humanPlayer = playerFactory("humanPlayer");
+    const aiPlayer = playerFactory("aiPlayer");
 
     const gameLogic = ((gameBoard, humanPlayer, aiPlayer) => {
-      return {
-        getBoard() {},
-        setCell(row, column, player) {},
-        startNewGame() {},
-        isGameOver() {},
+      const RESULTS = Object.freeze({ winner: "winner", tie: "tie" });
+      let result = null;
+
+      const ai = (() => {
+        const makeMove = () => {
+          const board = gameBoard.getBoard();
+          const rows = board.length;
+          const columns = board[0].length;
+          let moveMade = false;
+          while (!moveMade) {
+            const [randomRow, randomColumn] = [
+              Math.floor(rows * Math.random()),
+              Math.floor(columns * Math.random()),
+            ];
+            if (gameBoard.setCell(randomRow, randomColumn, aiPlayer.marker)) {
+              log("Ai made move", [randomRow, randomColumn]);
+              moveMade = true;
+            }
+          }
+        };
+
+        return {
+          makeMove,
+        };
+      })();
+
+      const getWinningSquaresCoordinatesForPlayer = (player) => {
+        const board = gameBoard.getBoard();
+        const rows = board.length;
+        const columns = board[0].length;
+
+        const areAllSquaresForOnePlayer = (squares) => {
+          return (
+            squares.filter((square) => square === player.marker).length ===
+            squares.length
+          );
+        };
+
+        for (let row = 0; row < rows; row++) {
+          if (areAllSquaresForOnePlayer(board[row])) {
+            const squareCoordinates = [];
+            for (let column = 0; column < columns; column++) {
+              squareCoordinates.push([row, column]);
+            }
+            return squareCoordinates;
+          }
+        }
+
+        for (let column = 0; column < columns; column++) {
+          const squares = [];
+          for (let row = 0; row < rows; row++) {
+            squares.push(board[row][column]);
+          }
+          if (areAllSquaresForOnePlayer(squares)) {
+            const squareCoordinates = [];
+            for (let row = 0; row < rows; row++) {
+              squareCoordinates.push([row, column]);
+            }
+            return squareCoordinates;
+          }
+        }
+
+        const diagonalSquares1 = [];
+        for (
+          let row = 0, column = 0;
+          row < rows, column < columns;
+          row++, column++
+        ) {
+          diagonalSquares1.push(board[row][column]);
+        }
+        if (areAllSquaresForOnePlayer(diagonalSquares1)) {
+          const squareCoordinates = [];
+          for (
+            let row = 0, column = 0;
+            row < rows, column < columns;
+            row++, column++
+          ) {
+            squareCoordinates.push([row, column]);
+          }
+        }
+
+        const diagonalSquares2 = [];
+        for (
+          let row = 0, column = columns - 1;
+          row < rows, column <= 0;
+          row++, column--
+        ) {
+          diagonalSquares2.push(board[row][column]);
+        }
+        if (areAllSquaresForOnePlayer(diagonalSquares2)) {
+          const squareCoordinates = [];
+          for (
+            let row = 0, column = columns - 1;
+            row < rows, column <= 0;
+            row++, column--
+          ) {
+            squareCoordinates.push([row, column]);
+          }
+        }
+
+        return false;
       };
-    })();
+
+      const isBoardFull = () => {
+        return gameBoard
+          .getBoard()
+          .map((row) => row.every((el) => el))
+          .every((row) => row);
+      };
+
+      const possibleResultAfterPlayerPlay = (player) => {
+        const winningCoordinates = getWinningSquaresCoordinatesForPlayer(
+          player
+        );
+        if (winningCoordinates) {
+          return {
+            board: gameBoard.getBoard(),
+            result: RESULTS.winner,
+            winningPlayer: player.id,
+            winningSquares: winningCoordinates,
+          };
+        }
+        if (isBoardFull()) {
+          return {
+            board: gameBoard.getBoard(),
+            result: RESULTS.tie,
+            winningPlayer: undefined,
+            winningSquares: [],
+          };
+        }
+        return null;
+      };
+
+      const makeMove = (row, column) => {
+        if (result) return result;
+        if (!gameBoard.setCell(row, column, humanPlayer.marker)) return false;
+        result = possibleResultAfterPlayerPlay(humanPlayer);
+        if (result) return result;
+        ai.makeMove();
+        result = possibleResultAfterPlayerPlay(aiPlayer);
+        if (result) return result;
+        return {
+          board: gameBoard.getBoard(),
+          result: "",
+          winningPlayer: undefined,
+          winningSquares: [],
+        };
+      };
+
+      const startNewGame = () => {
+        gameBoard.resetBoard();
+      };
+
+      return {
+        makeMove,
+        startNewGame,
+      };
+    })(gameBoard, humanPlayer, aiPlayer);
 
     return {
       makeMove(row, column) {
-        log("called makeMove", row, column);
+        return gameLogic.makeMove(row, column);
       },
       setPlayerName(name) {
-        log("called setPlayerName", name);
+        if (!name) return false;
+        humanPlayer.name = name;
+        return true;
+      },
+      getPlayerName() {
+        return humanPlayer.name;
       },
       restart() {
-        log("called restart");
+        gameLogic.startNewGame();
       },
     };
   })();
+
+  // test game
+  window.game = game;
 
   // Cache dom
   const cells = doc.querySelectorAll(".cell");
