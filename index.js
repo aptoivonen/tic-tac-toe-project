@@ -1,4 +1,82 @@
 ((doc) => {
+  const { log } = console;
+
+  // Game logic
+  const game = (() => {
+    const gameBoard = (() => {
+      let board = [
+        ["", "", ""],
+        ["", "", ""],
+        ["", "", ""],
+      ];
+
+      function mapBoardElements(fn) {
+        return board.map((arr) => arr.map(fn));
+      }
+
+      return {
+        getBoard() {
+          return mapBoardElements((el) => el);
+        },
+
+        resetBoard() {
+          board = mapBoardElements((el) => "");
+        },
+
+        setCell(row, column, marker) {
+          if (this.isTaken(row, column)) return false;
+          board[row][column] = marker;
+          return true;
+        },
+
+        isTaken(row, column) {
+          return !!board[row][column];
+        },
+      };
+    })();
+    class Player {
+      constructor(id, name) {
+        this.id = id;
+        this.name = name;
+      }
+    }
+
+    function playerFactory(type) {
+      if (type === "humanPlayer") {
+        return new Player("Player1", 1);
+      }
+
+      if (type === "aiPlayer") {
+        return new Player("AI", 2);
+      }
+
+      throw new Error("player type wrong:" + type);
+    }
+
+    const ai = (() => {})();
+
+    const gameLogic = ((gameBoard, humanPlayer, aiPlayer) => {
+      return {
+        getBoard() {},
+        setCell(row, column, player) {},
+        startNewGame() {},
+        isGameOver() {},
+      };
+    })();
+
+    return {
+      makeMove(row, column) {
+        log("called makeMove", row, column);
+      },
+      setPlayerName(name) {
+        log("called setPlayerName", name);
+      },
+      restart() {
+        log("called restart");
+      },
+    };
+  })();
+
   // Cache dom
   const cells = doc.querySelectorAll(".cell");
   const player1Name = doc.getElementById("player1-name");
