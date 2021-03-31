@@ -312,11 +312,15 @@
       gameResult.winningPlayer === 1
         ? player1Section.classList.add("winner")
         : player2Section.classList.add("winner");
+      gameResult.winningSquares.forEach((square) => {
+        const [row, column] = square;
+        findCell(row, column).classList.add("cell_winner");
+      });
     }
 
     // Game situation
     if (!gameResult) {
-      cells.forEach((cell) => cell.classList.remove("x", "o"));
+      cells.forEach((cell) => cell.classList.remove("x", "o", "cell_winner"));
     } else {
       const { board } = gameResult;
       const rows = board.length;
