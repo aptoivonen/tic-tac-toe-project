@@ -151,7 +151,7 @@
           const squareCoordinates = [];
           for (
             let row = 0, column = columns - 1;
-            row < rows, column <= 0;
+            row < rows, column >= 0;
             row++, column--
           ) {
             squareCoordinates.push([row, column]);
